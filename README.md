@@ -1,64 +1,62 @@
-# Lec8  : Byte Pair Encoding
+# Lec9  : Create Input Target pairs before Vector Embeddings
+    - LLMs learn to predict one word at time
+    - LLMs learn [input = LLM , output= learn]
+    - LLMs learn to 
+    - LLMs learn to predict 
+    - LLMs learn to predict one 
+    - LLMs learn to predict one word 
+    - LLMs learn to predict one word at 
+    - LLMs learn to predict one word at time
 
-Recap :
-    - Implement Simple Tokenisation:
-        - every word is unique token
+## Input context length :
+    - we learn about this later
 
-BPE :
-    - used in chatgpt
-    - we will learn this scheme from scratch
+## Auto Regressive or Self Learning:
+    - whatever the output in first iteration becomes input in next iteration
 
-Tokenisation Algorithms:
-    - word based : 
-        - every word is one token
-        - problem : 
-            - words not present in vocab?
-            - user inputs are not present so leads to error
-            - OOV : out of vocab words
-            - boy and boys will have different tokens
-            - similarity not captured
-            - English vocab : 170 thousands
-    
-    - character
-        - instead of having words each character is considered as token
-        - Vocab size would be equal to alphabets
-            - every language has fixed number of characters
-        - it has very small vocabloury size
-        - Solve OOV problem
-        - memory efficient
-        - Problem : meaning with words completely lost
-            - For example : boy vs boys 
-        - Token sequence is much larger than word
-        - Tokenisation and modernisation  meaning would be lost Root words lost
+## Dataset
+    - Verdict Dataset its a toy dataset
+    - we use BPE tokenizer
+    - len(enc_text) --> vocabloury
+    - BPE we have tokens as words or subwords or single characters
+    - To check we are just removing first 50 tokens from dataset
+## How to convert Dataset input out datapairs
+    - context size =4  - model is trained to look sequence of 4 words to predict the next word in sequence
+    - the first 4 tokens [1,2,3,4] the target next 4 tokens 
+    - context size is basically how many words model should pay attention at one time
+    - context and desired x = [1,2,3,4] y = [2,3,4,5]
+    - context size = no. of prediction task
+    - encoded and decoded check
 
-    - subword : best of both
-        - Rule1: do not split frequently used words into smaller subwords
-        - Rule 2 : split the rare words into smaller meaningful subwords
-        - For Example :
-            - boy should not be splits
-            - boys should  be split into "boy" and "s"
+## Structured Manner: Dataloaders for Paralell processing
+    - as pytorch tensors we have to do it
+    - input tensor and target tensors we need
+    - Go to pytorch documents
+    - Dataloders that fetches input and output pair  x = [1,2,3,4] y = [2,3,4,5]
+    - each row is one input context which is 4 our case so we have 4 prediction task here 
+    - **y is input tensor row shifted by 1 position**
 
-        - because boy appear very frequently
+## Each input output pair correspond to one prediction task if size of first pair is 4 we have 4 prediction task
+    - input and output is sliding
+    - return total number of rows
 
-Advantage:
-    - The subword splitting helps the model learn that different words with same root word as "token" like "tokens" and tokenizing are similar in meaning
+## Class Dataset
+    - txt
+    - tokenizer : our case BPE
+    - Look at picture how loop inside class is in work
 
-    -  helps model to understand that tokenization and medernisarion are made up of different root words but have the same suffix "ization" and are used in same syntactic situations
+<img src="img.png"/>
+    - __getitem__ it will tell data loader what kind of input and output we need
+    - we said if we will give index =1 i want input_ids index =1 and target_ids index=1
 
-    - BPE is subword algorithm 1994 it was data compression algorithms : most common paitr of consecutive bytes of data is replated with a byte that does not occur in data
-       - Research Paper: A new algorithm for data compression    
-
-    - Example :
-        original data: aaabdaaabac
-        byte pair occurs the most : "aa" size should always 2
-        replace with "z" because z does not occur
-        compressed : zabdzabac
-
-        Now we have "ab" will replace by y
-        zydzyac
-        
-        ac remains it only appears once
-
-        we can do with zy
-
-    BPE Algorithm : exactly are rule1 and rule2
+## Class Dataloaders
+    - Batch processing
+    - droplast=true. we will learn about this later
+    - Dataloader check getitem method in dataset class and return what input and output are formatted
+    - help us parallel processing
+    - num_workers number of  processing used
+    - itr and next method give input and output pair
+    - Batch size=4 and stride =4  checking
+    why increase stride=4
+        - utilise data fully without overlapping it is used to avoid overfitting
+        - no overlap between batch 1 and batch 2
